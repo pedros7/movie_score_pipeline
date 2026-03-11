@@ -4,7 +4,7 @@ from pandas.errors import ParserError, EmptyDataError
 from src.providers.critic_agg import CriticAggProvider
 
 URL_TEST_DATA_PROVIDER1 = "test/data/test_data_provider1.csv"
-URL_TEST_DATA_PROVIDER1_INCOMPATIBLE = "test/data/test_data_provider1_incompatible.jpg"
+URL_TEST_DATA_PROVIDER1_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"
 URL_TEST_DATA_PROVIDER1_EMPTY = "test/data/empty_file.csv"
 URL_TEST_DATA_PROVIDER1_SHORT = "test/data/test_data_provider1_short.csv"
 
