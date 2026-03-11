@@ -54,7 +54,7 @@ def test_critic_agg_fetch_empty_file(test_provider):
 def test_critic_agg_transform_titles(test_provider, test_data):
     processed_data = test_provider.transform(test_data)
     assert processed_data[0].title == "The Fall"
-    assert processed_data[1].title == "Eternal Sunshine of the Spotless Mind"
+    assert processed_data[1].title == "Eternal Sunshine Of The Spotless Mind"
     assert processed_data[2].title == "There Will Be Blood"
 
 
@@ -74,11 +74,27 @@ def test_critic_agg_transform_schema_mapping(test_provider, test_data):
 
 def test_critic_agg_transform_messy_data(test_provider):
     messy_data = pd.DataFrame(
-        {"movie_title": ["  the fall  "], "release_year": [" 2006 "]}
+        {
+            "movie_title": ["  the fall  "],
+            "release_year": [" 2006 "],
+            "critic_score_percentage": [" 63 "],
+            "top_critic_score": [" 6.2 "],
+            "total_critic_reviews_counted": [" 60 "],
+        }
     )
     processed = test_provider.transform(messy_data)
     assert processed[0].title == "The Fall"
-    assert processed[0].year == "2006"
+    assert processed[0].year == 2006
+
+
+def test_critic_agg_transform_missing_key_attribute(test_provider):
+    messy_data = pd.DataFrame(
+        {
+            "movie_title": ["  the fall  "],
+        }
+    )
+    with pytest.raises(AttributeError):
+        test_provider.transform(messy_data)
 
 
 """ Integration tests """

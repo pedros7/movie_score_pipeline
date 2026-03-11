@@ -1,15 +1,16 @@
 from src.providers.base_provider import BaseProvider
-from models.movie_score_model import *
+from models.movie_score_model import MovieScore
 import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
+from typing import List
 import os
 import logging
+
 
 class CriticAggProvider(BaseProvider):
     def __init__(self):
         super().__init__()
         self.name = "critic_agg"
-
 
     def fetch(self, url):
         if not os.path.exists(url):
@@ -26,6 +27,20 @@ class CriticAggProvider(BaseProvider):
             raise
         return data
 
+    def transform(self, df: pd.DataFrame) -> List[MovieScore]:
+        movie_list = []
+        for row in df.itertuples(index=False):
 
-    def transform(self, df: pd.DataFrame):
-        return "Function to be developed"
+            movie = MovieScore(
+                title=row.movie_title.strip().title(),
+                year=int(str(row.release_year).strip()),
+                critic_score_percentage=getattr(row, "critic_score_percentage", None),
+                top_critic_score=getattr(row, "top_critic_score", None),
+                total_critic_reviews_counted=getattr(
+                    row, "total_critic_reviews_counted", None
+                ),
+            )
+
+            movie_list.append(movie)
+
+        return movie_list
