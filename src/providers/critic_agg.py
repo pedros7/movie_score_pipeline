@@ -1,5 +1,5 @@
-from base_provider import BaseProvider
-from ...models.movie_score_model import *
+from src.providers.base_provider import BaseProvider
+from models.movie_score_model import *
 import pandas as pd
 
 class CriticAggProvider(BaseProvider):
