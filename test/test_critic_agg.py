@@ -98,3 +98,30 @@ def test_critic_agg_transform_missing_key_attribute(test_provider):
 
 
 """ Integration tests """
+
+
+def test_critic_agg_integration_pipeline(test_provider):
+    df = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
+    movies = test_provider.transform(df)
+
+    assert len(movies) == 3
+    assert movies[0].title == "The Fall"
+    assert movies[1].year == 2004
+    assert movies[2].title == "There Will Be Blood"
+
+
+def test_critic_agg_integration_messy_file(test_provider, tmp_path):
+    test_file = tmp_path / "messy.csv"
+    test_file.write_text(
+        """movie_title,release_year,critic_score_percentage,top_critic_score,total_critic_reviews_counted
+        the fall  , 2006 , 63 , 6.2 , 60
+        """
+    )
+
+    df = test_provider.fetch(test_file)
+    movies = test_provider.transform(df)
+
+    assert len(movies) == 1
+    assert movies[0].title == "The Fall"
+    assert movies[0].top_critic_score == 6.2
+    assert movies[0].total_critic_reviews_counted == 60
