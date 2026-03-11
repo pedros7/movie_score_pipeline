@@ -1,9 +1,10 @@
 import pytest
-from pandas.errors import ParserError
+from pandas.errors import ParserError, EmptyDataError
 from src.providers.critic_agg import CriticAggProvider
 
 URL_TEST_DATA_PROVIDER1 = "test/data/test_data_provider1.csv"
 URL_TEST_DATA_PROVIDER1_INCOMPATIBLE = "test/data/test_data_provider1_incompatible.jpg"
+URL_TEST_DATA_PROVIDER1_EMPTY = "test/data/empty_file.csv"
 URL_TEST_DATA_PROVIDER1_SHORT = "test/data/test_data_provider1_short.csv"
 
 @pytest.fixture
@@ -30,5 +31,10 @@ def test_critic_agg_missing_file(provider):
 def test_critic_agg_file_unreadable(provider):
     with pytest.raises(ParserError):
         provider.fetch(URL_TEST_DATA_PROVIDER1_INCOMPATIBLE)
+
+
+def test_critic_agg_empty_file(provider):
+    with pytest.raises(EmptyDataError):
+        provider.fetch(URL_TEST_DATA_PROVIDER1_EMPTY)
 
 

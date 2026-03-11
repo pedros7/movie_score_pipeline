@@ -1,7 +1,7 @@
 from src.providers.base_provider import BaseProvider
 from models.movie_score_model import *
 import pandas as pd
-from pandas.errors import ParserError
+from pandas.errors import ParserError, EmptyDataError
 import os
 import logging
 
@@ -20,6 +20,9 @@ class CriticAggProvider(BaseProvider):
             data = pd.read_csv(url)
         except ParserError as e:
             logging.error(f"Failed to read CSV: {e}")
+            raise
+        except EmptyDataError as e:
+            logging.error(f"File completely empty: {e}")
             raise
         return data
 
