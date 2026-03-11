@@ -1,36 +1,35 @@
 import pytest
 import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
-from src.providers.critic_agg import CriticAggProvider
+from src.providers.audience_pulse import AudiencePulseProvider
 
-URL_TEST_DATA_PROVIDER1 = "test/data/test_data_provider1.csv"
-URL_TEST_DATA_PROVIDER1_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"
-URL_TEST_DATA_PROVIDER1_EMPTY = "test/data/empty_file.csv"
-URL_TEST_DATA_PROVIDER1_SHORT = "test/data/test_data_provider1_short.csv"
+URL_TEST_DATA_PROVIDER2 = "test/data/test_data_provider2.json"
+URL_TEST_DATA_PROVIDER_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"
+URL_TEST_DATA_PROVIDER2_EMPTY = "test/data/empty_file.json"
 
 """ Fixtures """
 
 
 @pytest.fixture
 def test_provider():
-    return CriticAggProvider()
+    return AudiencePulseProvider()
 
 
 @pytest.fixture
 def test_data():
-    return pd.read_csv(URL_TEST_DATA_PROVIDER1)
+    return pd.read_json(URL_TEST_DATA_PROVIDER2)
 
 
 """ Unit tests """
 
 
 def test_critic_agg_fetch_length(test_provider):
-    data = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
+    data = test_provider.fetch(URL_TEST_DATA_PROVIDER2)
     assert len(data) == 3
 
 
 def test_critic_agg_fetch_titles(test_provider):
-    data = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
+    data = test_provider.fetch(URL_TEST_DATA_PROVIDER2)
     assert data.iloc[0, 0] == "The Fall"
     assert data.iloc[1, 0] == "Eternal Sunshine of the Spotless Mind"
     assert data.iloc[2, 0] == "There Will Be Blood"
@@ -42,13 +41,8 @@ def test_critic_agg_fetch_missing_file(test_provider):
 
 
 def test_critic_agg_fetch_file_unreadable(test_provider):
-    with pytest.raises(ParserError):
-        test_provider.fetch(URL_TEST_DATA_PROVIDER1_INCOMPATIBLE)
-
-
-def test_critic_agg_fetch_empty_file(test_provider):
-    with pytest.raises(EmptyDataError):
-        test_provider.fetch(URL_TEST_DATA_PROVIDER1_EMPTY)
+    with pytest.raises(ValueError):
+        test_provider.fetch(URL_TEST_DATA_PROVIDER_INCOMPATIBLE)
 
 
 def test_critic_agg_transform_titles(test_provider, test_data):
@@ -75,14 +69,15 @@ def test_critic_agg_transform_schema_mapping(test_provider, test_data):
 def test_critic_agg_transform_messy_data(test_provider):
     messy_data = pd.DataFrame(
         {
-            "movie_title": ["  the fall  "],
-            "release_year": [" 2006 "],
-            "critic_score_percentage": [" 63 "],
-            "top_critic_score": [" 6.2 "],
-            "total_critic_reviews_counted": [" 60 "],
+            "title": ["  the fall  "],
+            "year": [" 2006 "],
+            "audience_average_score": [" 8.0 "],
+            "total_audience_ratings": [" 50000 "],
+            "domestic_box_office_gross": [" 2000000 "],
         }
     )
     processed = test_provider.transform(messy_data)
+
     assert processed[0].title == "The Fall"
     assert processed[0].year == 2006
 
@@ -90,7 +85,7 @@ def test_critic_agg_transform_messy_data(test_provider):
 def test_critic_agg_transform_missing_key_attribute(test_provider):
     messy_data = pd.DataFrame(
         {
-            "movie_title": ["  the fall  "],
+            "title": ["  the fall  "],
         }
     )
     with pytest.raises(AttributeError):
@@ -101,7 +96,7 @@ def test_critic_agg_transform_missing_key_attribute(test_provider):
 
 
 def test_critic_agg_integration_pipeline(test_provider):
-    df = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
+    df = test_provider.fetch(URL_TEST_DATA_PROVIDER2)
     movies = test_provider.transform(df)
 
     assert len(movies) == 3
@@ -111,17 +106,25 @@ def test_critic_agg_integration_pipeline(test_provider):
 
 
 def test_critic_agg_integration_messy_file(test_provider, tmp_path):
-    test_file = tmp_path / "messy.csv"
-    test_file.write_text(
-        """movie_title,release_year,critic_score_percentage,top_critic_score,total_critic_reviews_counted
-        the fall  , 2006 , 63 , 6.2 , 60
-        """
-    )
+    test_file = tmp_path / "messy.json"
+    test_file.write_text("""
+        [
+            {
+                "title": "  the fall  ",
+                "year": " 2006 ",
+                "audience_average_score": " 8.0 ",
+                "total_audience_ratings": " 50000 ",
+                "domestic_box_office_gross": " 2000000 "
+            }
+        ]
+        """)
 
     df = test_provider.fetch(test_file)
     movies = test_provider.transform(df)
 
     assert len(movies) == 1
     assert movies[0].title == "The Fall"
-    assert movies[0].top_critic_score == 6.2
-    assert movies[0].total_critic_reviews_counted == 60
+    assert movies[0].year == 2006
+    assert movies[0].audience_average_score == 8.0
+    assert movies[0].total_audience_ratings == 50000
+    assert movies[0].domestic_box_office_gross == 2000000

@@ -1,0 +1,23 @@
+[
+  {
+    "title": "The Fall",
+    "year": "2006",
+    "audience_average_score": 8.6,
+    "total_audience_ratings": 145000,
+    "domestic_box_office_gross": 2200000
+  },
+  {
+    "title": "Eternal Sunshine of the Spotless Mind",
+    "year": "2004",
+    "audience_average_score": 8.4,
+    "total_audience_ratings": 1100000,
+    "domestic_box_office_gross": 34400000
+  },
+  {
+    "title": "There Will Be Blood",
+    "year": "2007",
+    "audience_average_score": 8.2,
+    "total_audience_ratings": 600000,
+    "domestic_box_office_gross": 40200000
+  }
+]
