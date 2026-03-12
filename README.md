@@ -68,6 +68,23 @@ No changes to the core pipeline logic are required.
 
 ---
 
+## Prerequisites
+
+This project is built using **Python 3.9+**.
+
+Ensure you have a virtual environment set up and the necessary dependencies installed:
+
+```bash
+# Create virtual environment (optional but recommended)
+python -m venv .venv
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+---
+
 ## Running the Pipeline
 
 From the project root:
