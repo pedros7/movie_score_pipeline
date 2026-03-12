@@ -33,3 +33,26 @@ def test_audience_pulse_provider():
 @pytest.fixture
 def test_audience_pulse_data():
     return pd.read_json(URL_TEST_DATA_PROVIDER2)
+
+
+@pytest.fixture
+def test_box_office_metrics_provider():
+    return BoxOfficeMetricsProvider()
+
+
+@pytest.fixture
+def test_paths():
+    paths = {
+        "domestic": URL_TEST_DATA_PROVIDER3_DOMESTIC,
+        "financials": URL_TEST_DATA_PROVIDER3_FINANCIALS,
+        "international": URL_TEST_DATA_PROVIDER3_INTERNATIONAL,
+    }
+    return paths
+
+
+@pytest.fixture
+def test_box_office_metrics_data():
+    domestic = pd.read_csv(URL_TEST_DATA_PROVIDER3_DOMESTIC)
+    financials = pd.read_csv(URL_TEST_DATA_PROVIDER3_FINANCIALS)
+    international = pd.read_csv(URL_TEST_DATA_PROVIDER3_INTERNATIONAL)
+    return (domestic, financials, international)
