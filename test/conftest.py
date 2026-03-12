@@ -4,6 +4,7 @@ import pandas as pd
 from src.providers.critic_agg import CriticAggProvider
 from src.providers.audience_pulse import AudiencePulseProvider
 from src.providers.box_office_metrics import BoxOfficeMetricsProvider
+from src.pipeline import MoviePipeline
 from test_critic_agg import URL_TEST_DATA_PROVIDER1
 from test_audience_pulse import URL_TEST_DATA_PROVIDER2
 from test_box_office_metrics import (
@@ -56,3 +57,20 @@ def test_box_office_metrics_data():
     financials = pd.read_csv(URL_TEST_DATA_PROVIDER3_FINANCIALS)
     international = pd.read_csv(URL_TEST_DATA_PROVIDER3_INTERNATIONAL)
     return (domestic, financials, international)
+
+
+@pytest.fixture
+def pipeline():
+    providers = [
+        (CriticAggProvider(), URL_TEST_DATA_PROVIDER1),
+        (AudiencePulseProvider(), URL_TEST_DATA_PROVIDER2),
+        (
+            BoxOfficeMetricsProvider(),
+            {
+                "domestic": URL_TEST_DATA_PROVIDER3_DOMESTIC,
+                "financials": URL_TEST_DATA_PROVIDER3_FINANCIALS,
+                "international": URL_TEST_DATA_PROVIDER3_INTERNATIONAL,
+            },
+        ),
+    ]
+    return MoviePipeline(providers)
