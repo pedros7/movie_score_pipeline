@@ -13,4 +13,4 @@ jobs:
       - name: Install dependencies
         run: pip install pytest pydantic pandas
       - name: Run Tests
-        run: pytest
+        run: python -m pytest -v
