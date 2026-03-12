@@ -1,9 +1,20 @@
 from typing import List
-from models.movie_score_model import MovieScore
-from src.providers.critic_agg import CriticAggProvider
-from src.providers.audience_pulse import AudiencePulseProvider
-from src.providers.box_office_metrics import BoxOfficeMetricsProvider
+from src.movie_merger import movie_merger
 
 
 class MoviePipeline:
-    pass
+    def __init__(self, providers):
+        self.providers = providers
+
+    def run(self):
+        results = []
+
+        for provider, source in self.providers:
+            raw = provider.fetch(source)
+            processed = provider.transform(raw)
+
+            results.append(processed)
+
+        merged = movie_merger(*results)
+
+        return merged

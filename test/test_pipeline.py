@@ -5,13 +5,16 @@ from test_audience_pulse import URL_TEST_DATA_PROVIDER2
 
 
 def test_pipeline_runs(
-    test_critic_agg_provider, test_provider2, test_provider3, test_paths
+    test_critic_agg_provider,
+    test_audience_pulse_provider,
+    test_box_office_metrics_provider,
+    test_paths,
 ):
     pipeline = MoviePipeline(
         providers=[
             (test_critic_agg_provider, URL_TEST_DATA_PROVIDER1),
-            (test_provider2, URL_TEST_DATA_PROVIDER2),
-            (test_provider3, test_paths),
+            (test_audience_pulse_provider, URL_TEST_DATA_PROVIDER2),
+            (test_box_office_metrics_provider, test_paths),
         ]
     )
 
@@ -28,8 +31,8 @@ def test_pipeline_merges_data(pipeline):
     assert movie.year is not None
     assert (
         movie.critic_score_percentage
-        or movie.audience_average_score
-        or movie.production_budget_usd
+        and movie.audience_average_score
+        and movie.production_budget_usd
     )
 
 
