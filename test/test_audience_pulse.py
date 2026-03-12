@@ -32,22 +32,26 @@ def test_audience_pulse_fetch_file_unreadable(test_audience_pulse_provider):
         test_audience_pulse_provider.fetch(URL_TEST_DATA_PROVIDER_INCOMPATIBLE)
 
 
-def test_audience_pulse_transform_titles(test_audience_pulse_provider, test_data):
-    processed_data = test_audience_pulse_provider.transform(test_data)
+def test_audience_pulse_transform_titles(
+    test_audience_pulse_provider, test_audience_pulse_data
+):
+    processed_data = test_audience_pulse_provider.transform(test_audience_pulse_data)
     assert processed_data[0].title == "The Fall"
     assert processed_data[1].title == "Eternal Sunshine Of The Spotless Mind"
     assert processed_data[2].title == "There Will Be Blood"
 
 
 def test_audience_pulse_transform_preserves_row_count(
-    test_audience_pulse_provider, test_data
+    test_audience_pulse_provider, test_audience_pulse_data
 ):
-    processed = test_audience_pulse_provider.transform(test_data)
+    processed = test_audience_pulse_provider.transform(test_audience_pulse_data)
     assert len(processed) == 3
 
 
-def test_audience_pulse_transform_schema_mapping(test_audience_pulse_provider, test_data):
-    processed = test_audience_pulse_provider.transform(test_data)
+def test_audience_pulse_transform_schema_mapping(
+    test_audience_pulse_provider, test_audience_pulse_data
+):
+    processed = test_audience_pulse_provider.transform(test_audience_pulse_data)
     assert hasattr(processed[0], "title")
     assert hasattr(processed[0], "year")
     assert hasattr(processed[0], "critic_score_percentage")
