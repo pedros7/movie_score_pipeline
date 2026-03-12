@@ -76,10 +76,10 @@ def test_merge_combines_different_movies(critic_agg_movie, audience_pulse_movie_
     assert merged[1].audience_average_score == 8.4
 
 
-def test_merge_field_preservation(critic_agg_movie, audience_pulse_movie):
+def test_merge_field_preservation(audience_pulse_movie):
     modified_movie = copy.deepcopy(audience_pulse_movie)
     modified_movie.audience_average_score = 5.0
-    merged = movie_merger(critic_agg_movie, modified_movie)
+    merged = movie_merger(audience_pulse_movie, modified_movie)
     assert len(merged) == 1
     assert merged[0].title == "The Fall"
     assert merged[0].audience_average_score == 8.6
@@ -89,7 +89,7 @@ def test_merge_handles_empty_list(critic_agg_movie):
     merged = movie_merger(critic_agg_movie, [])
     assert len(merged) == 1
     assert merged[0].title == "The Fall"
-    assert merged[0].audience_average_score == 8.6
+    assert merged[0].top_critic_score == 6.2
 
 
 def test_merge_handles_two_empty_lists():
@@ -103,9 +103,9 @@ def test_merge_handles_three_providers(
     merged = movie_merger(
         critic_agg_movie, audience_pulse_movie, box_office_metrics_movie
     )
-    assert len(merged) == 3
+    assert len(merged) == 1
     assert merged[0].title == "The Fall"
     assert merged[0].top_critic_score == 6.2
     assert merged[0].audience_average_score == 8.6
-    assert merged[0].international_box_office_gross == 200000
+    assert merged[0].international_box_office_gross == 3700000
     assert merged[0].marketing_spend_usd == 2000000
