@@ -31,5 +31,5 @@ def box_office_metrics_movie():
         domestic_box_office_gross=0,
         international_box_office_gross=90,
         production_budget_usd=10,
-        marketing_spend_usd=10
+        marketing_spend_usd=10,
     )
