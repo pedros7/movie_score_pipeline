@@ -2,7 +2,7 @@ from src.providers.base_provider import BaseProvider
 from models.movie_score_model import MovieScore
 import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import os
 import logging
 
@@ -12,7 +12,9 @@ class BoxOfficeMetricsProvider(BaseProvider):
         super().__init__()
         self.name = "box_office_metrics"
 
-    def fetch(self, paths: Dict[str, str]) -> MovieScore:
+    def fetch(
+        self, paths: Dict[str, str]
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         for name, path in paths.items():
             if not os.path.exists(path):
                 logging.error(f"{name} file not found at path: {path}")
@@ -31,19 +33,40 @@ class BoxOfficeMetricsProvider(BaseProvider):
 
         return domestic, financials, international
 
-    def transform(self, df: pd.DataFrame) -> List[MovieScore]:
+    def transform(
+        self, data: Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+    ) -> List[MovieScore]:
+        domestic, financials, international = data
+
+        for df in [domestic, financials, international]:
+            df["film_name"] = df["film_name"].astype(str).str.strip().str.title()
+            df["year_of_release"] = df["year_of_release"].astype(int)
+
+        box_office_stats = domestic.merge(
+            international,
+            on=["film_name", "year_of_release"],
+            suffixes=("_domestic", "_international"),
+        )
+        complete_stats = box_office_stats.merge(
+            financials,
+            on=["film_name", "year_of_release"],
+        )
+
         movie_list = []
-        for row in df.itertuples(index=False):
+
+        for row in complete_stats.itertuples(index=False):
 
             movie = MovieScore(
-                title=row.movie_title.strip().title(),
-                year=int(str(row.release_year).strip()),
-                domestic_box_office_gross=getattr(row, "critic_score_percentage", None),
-                international_box_office_gross=getattr(row, "top_critic_score", None),
-                production_budget_usd=getattr(
-                    row, "total_critic_reviews_counted", None
+                title=row.film_name,
+                year=row.year_of_release,
+                domestic_box_office_gross=getattr(
+                    row, "box_office_gross_usd_domestic", None
                 ),
-                marketing_spend_usd=getattr(row, "total_critic_reviews_counted", None),
+                international_box_office_gross=getattr(
+                    row, "box_office_gross_usd_international", None
+                ),
+                production_budget_usd=getattr(row, "production_budget_usd", None),
+                marketing_spend_usd=getattr(row, "marketing_spend_usd", None),
             )
 
             movie_list.append(movie)
