@@ -102,6 +102,7 @@ def test_critic_agg_transform_messy_data(test_provider, test_data):
     domestic, financials, international = test_data
     messy_domestic = domestic.copy()
     messy_domestic.loc[0, "film_name"] = "  the fall  "
+    messy_domestic["year_of_release"] = messy_domestic["year_of_release"].astype(object)
     messy_domestic.loc[0, "year_of_release"] = " 2006 "
 
     processed = test_provider.transform((messy_domestic, financials, international))
