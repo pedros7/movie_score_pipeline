@@ -1,7 +1,5 @@
 import pytest
 import pandas as pd
-from pandas.errors import ParserError, EmptyDataError
-from src.providers.audience_pulse import AudiencePulseProvider
 
 URL_TEST_DATA_PROVIDER2 = "test/data/test_data_provider2.json"
 URL_TEST_DATA_PROVIDER_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"

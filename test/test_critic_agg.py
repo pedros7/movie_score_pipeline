@@ -1,7 +1,6 @@
 import pytest
 import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
-from src.providers.critic_agg import CriticAggProvider
 
 URL_TEST_DATA_PROVIDER1 = "test/data/test_data_provider1.csv"
 URL_TEST_DATA_PROVIDER1_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"

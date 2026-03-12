@@ -1,7 +1,5 @@
 import pytest
-import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
-from src.providers.box_office_metrics import BoxOfficeMetricsProvider
 
 URL_TEST_DATA_PROVIDER3_DOMESTIC = "test/data/test_data_provider3_domestic.csv"
 URL_TEST_DATA_PROVIDER3_FINANCIALS = "test/data/test_data_provider3_financials.csv"
@@ -15,20 +13,26 @@ URL_TEST_DATA_PROVIDER3_EMPTY = "test/data/empty_file.csv"
 
 
 def test_box_office_metrics_fetch_length(test_box_office_metrics_provider, test_paths):
-    domestic, financials, international = test_box_office_metrics_provider.fetch(test_paths)
+    domestic, financials, international = test_box_office_metrics_provider.fetch(
+        test_paths
+    )
     assert len(domestic) == 3
     assert len(financials) == 3
     assert len(international) == 3
 
 
 def test_box_office_metrics_fetch_titles(test_box_office_metrics_provider, test_paths):
-    domestic, financials, international = test_box_office_metrics_provider.fetch(test_paths)
+    domestic, financials, international = test_box_office_metrics_provider.fetch(
+        test_paths
+    )
     assert domestic.iloc[0, 0] == "The Fall"
     assert financials.iloc[1, 0] == "Eternal Sunshine of the Spotless Mind"
     assert international.iloc[2, 0] == "There Will Be Blood"
 
 
-def test_box_office_metrics_fetch_missing_file(test_box_office_metrics_provider, test_paths):
+def test_box_office_metrics_fetch_missing_file(
+    test_box_office_metrics_provider, test_paths
+):
     missing_file_paths = test_paths.copy()
     missing_file_paths["domestic"] = "data/none.csv"
 
@@ -36,33 +40,45 @@ def test_box_office_metrics_fetch_missing_file(test_box_office_metrics_provider,
         test_box_office_metrics_provider.fetch(missing_file_paths)
 
 
-def test_box_office_metrics_fetch_file_unreadable(test_box_office_metrics_provider, test_paths):
+def test_box_office_metrics_fetch_file_unreadable(
+    test_box_office_metrics_provider, test_paths
+):
     unreadable_file_paths = test_paths.copy()
     unreadable_file_paths["international"] = URL_TEST_DATA_PROVIDER_INCOMPATIBLE
     with pytest.raises(ParserError):
         test_box_office_metrics_provider.fetch(unreadable_file_paths)
 
 
-def test_box_office_metrics_fetch_empty_file(test_box_office_metrics_provider, test_paths):
+def test_box_office_metrics_fetch_empty_file(
+    test_box_office_metrics_provider, test_paths
+):
     empty_file_paths = test_paths.copy()
     empty_file_paths["financials"] = URL_TEST_DATA_PROVIDER3_EMPTY
     with pytest.raises(EmptyDataError):
         test_box_office_metrics_provider.fetch(empty_file_paths)
 
 
-def test_box_office_metrics_transform_titles(test_box_office_metrics_provider, test_box_office_metrics_data):
-    processed_data = test_box_office_metrics_provider.transform(test_box_office_metrics_data)
+def test_box_office_metrics_transform_titles(
+    test_box_office_metrics_provider, test_box_office_metrics_data
+):
+    processed_data = test_box_office_metrics_provider.transform(
+        test_box_office_metrics_data
+    )
     assert processed_data[0].title == "The Fall"
     assert processed_data[1].title == "Eternal Sunshine Of The Spotless Mind"
     assert processed_data[2].title == "There Will Be Blood"
 
 
-def test_box_office_metrics_transform_preserves_row_count(test_box_office_metrics_provider, test_box_office_metrics_data):
+def test_box_office_metrics_transform_preserves_row_count(
+    test_box_office_metrics_provider, test_box_office_metrics_data
+):
     processed = test_box_office_metrics_provider.transform(test_box_office_metrics_data)
     assert len(processed) == 3
 
 
-def test_box_office_metrics_transform_schema_mapping(test_box_office_metrics_provider, test_box_office_metrics_data):
+def test_box_office_metrics_transform_schema_mapping(
+    test_box_office_metrics_provider, test_box_office_metrics_data
+):
     processed = test_box_office_metrics_provider.transform(test_box_office_metrics_data)
     assert hasattr(processed[0], "title")
     assert hasattr(processed[0], "year")
@@ -72,31 +88,41 @@ def test_box_office_metrics_transform_schema_mapping(test_box_office_metrics_pro
     assert hasattr(processed[0], "marketing_spend_usd")
 
 
-def test_box_office_metrics_transform_messy_data(test_box_office_metrics_provider, test_box_office_metrics_data):
+def test_box_office_metrics_transform_messy_data(
+    test_box_office_metrics_provider, test_box_office_metrics_data
+):
     domestic, financials, international = test_box_office_metrics_data
     messy_domestic = domestic.copy()
     messy_domestic.loc[0, "film_name"] = "  the fall  "
     messy_domestic["year_of_release"] = messy_domestic["year_of_release"].astype(object)
     messy_domestic.loc[0, "year_of_release"] = " 2006 "
 
-    processed = test_box_office_metrics_provider.transform((messy_domestic, financials, international))
+    processed = test_box_office_metrics_provider.transform(
+        (messy_domestic, financials, international)
+    )
     assert processed[0].title == "The Fall"
     assert processed[0].year == 2006
 
 
-def test_box_office_metrics_transform_missing_key_attribute(test_box_office_metrics_provider, test_box_office_metrics_data):
+def test_box_office_metrics_transform_missing_key_attribute(
+    test_box_office_metrics_provider, test_box_office_metrics_data
+):
     domestic, financials, international = test_box_office_metrics_data
     messy_financials = financials.copy()
     messy_financials = messy_financials.drop(columns=["film_name"])
 
     with pytest.raises(KeyError):
-        test_box_office_metrics_provider.transform((domestic, messy_financials, international))
+        test_box_office_metrics_provider.transform(
+            (domestic, messy_financials, international)
+        )
 
 
 """ Integration tests """
 
 
-def test_box_office_metrics_integration_pipeline(test_box_office_metrics_provider, test_paths):
+def test_box_office_metrics_integration_pipeline(
+    test_box_office_metrics_provider, test_paths
+):
     df = test_box_office_metrics_provider.fetch(test_paths)
     movies = test_box_office_metrics_provider.transform(df)
 
@@ -106,7 +132,9 @@ def test_box_office_metrics_integration_pipeline(test_box_office_metrics_provide
     assert movies[2].title == "There Will Be Blood"
 
 
-def test_box_office_metrics_integration_messy_file(test_box_office_metrics_provider, tmp_path, test_paths):
+def test_box_office_metrics_integration_messy_file(
+    test_box_office_metrics_provider, tmp_path, test_paths
+):
     messy_international_file = tmp_path / "messy.csv"
     messy_international_file.write_text(
         """film_name,year_of_release,box_office_gross_usd
@@ -119,7 +147,9 @@ def test_box_office_metrics_integration_messy_file(test_box_office_metrics_provi
     domestic, financials, international = test_box_office_metrics_provider.fetch(paths)
     domestic = domestic.iloc[:-2].copy()
     financials = financials.iloc[:-2].copy()
-    movies = test_box_office_metrics_provider.transform((domestic, financials, international))
+    movies = test_box_office_metrics_provider.transform(
+        (domestic, financials, international)
+    )
 
     assert len(movies) == 1
     assert movies[0].title == "The Fall"
