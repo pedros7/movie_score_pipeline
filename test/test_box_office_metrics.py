@@ -3,9 +3,13 @@ import pandas as pd
 from pandas.errors import ParserError, EmptyDataError
 from src.providers.box_office_metrics import BoxOfficeMetricsProvider
 
-URL_TEST_DATA_PROVIDER1 = "test/data/test_data_provider1.csv"
+URL_TEST_DATA_PROVIDER3_DOMESTIC = "test/data/test_data_provider3_domestic.csv"
+URL_TEST_DATA_PROVIDER3_FINANCIALS = "test/data/test_data_provider3_financials.csv"
+URL_TEST_DATA_PROVIDER3_INTERNATIONAL = (
+    "test/data/test_data_provider3_international.csv"
+)
 URL_TEST_DATA_PROVIDER_INCOMPATIBLE = "test/data/test_data_provider_incompatible.jpg"
-URL_TEST_DATA_PROVIDER1_EMPTY = "test/data/empty_file.csv"
+URL_TEST_DATA_PROVIDER3_EMPTY = "test/data/empty_file.csv"
 
 """ Fixtures """
 
@@ -16,16 +20,28 @@ def test_provider():
 
 
 @pytest.fixture
+def test_paths():
+    paths = {
+        "domestic": URL_TEST_DATA_PROVIDER3_DOMESTIC,
+        "financials": URL_TEST_DATA_PROVIDER3_FINANCIALS,
+        "international": URL_TEST_DATA_PROVIDER3_INTERNATIONAL,
+    }
+    return paths
+
+
+@pytest.fixture
 def test_data():
-    return pd.read_csv(URL_TEST_DATA_PROVIDER1)
+    return pd.read_csv(URL_TEST_DATA_PROVIDER3_DOMESTIC)
 
 
 """ Unit tests """
 
 
-def test_critic_agg_fetch_length(test_provider):
-    data = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
-    assert len(data) == 3
+def test_critic_agg_fetch_length(test_provider, test_paths):
+    domestic, financials, international = test_provider.fetch(test_paths)
+    assert len(domestic) == 3
+    assert len(financials) == 3
+    assert len(international) == 3
 
 
 def test_critic_agg_fetch_titles(test_provider):
@@ -35,19 +51,26 @@ def test_critic_agg_fetch_titles(test_provider):
     assert data.iloc[2, 0] == "There Will Be Blood"
 
 
-def test_critic_agg_fetch_missing_file(test_provider):
+def test_critic_agg_fetch_missing_file(test_provider, test_paths):
+    missing_file_paths = test_paths.copy()
+    missing_file_paths["domestic"] = "data/none.csv"
+
     with pytest.raises(FileNotFoundError):
-        test_provider.fetch("data/none.csv")
+        test_provider.fetch(missing_file_paths)
 
 
-def test_critic_agg_fetch_file_unreadable(test_provider):
+def test_critic_agg_fetch_file_unreadable(test_provider, test_paths):
+    unreadable_file_paths = test_paths.copy()
+    unreadable_file_paths["international"] = URL_TEST_DATA_PROVIDER_INCOMPATIBLE
     with pytest.raises(ParserError):
-        test_provider.fetch(URL_TEST_DATA_PROVIDER1_INCOMPATIBLE)
+        test_provider.fetch(unreadable_file_paths)
 
 
-def test_critic_agg_fetch_empty_file(test_provider):
+def test_critic_agg_fetch_empty_file(test_provider, test_paths):
+    empty_file_paths = test_paths.copy()
+    empty_file_paths["financials"] = URL_TEST_DATA_PROVIDER3_EMPTY
     with pytest.raises(EmptyDataError):
-        test_provider.fetch(URL_TEST_DATA_PROVIDER1_EMPTY)
+        test_provider.fetch(empty_file_paths)
 
 
 def test_critic_agg_transform_titles(test_provider, test_data):
