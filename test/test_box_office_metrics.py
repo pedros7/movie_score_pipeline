@@ -44,11 +44,11 @@ def test_critic_agg_fetch_length(test_provider, test_paths):
     assert len(international) == 3
 
 
-def test_critic_agg_fetch_titles(test_provider):
-    data = test_provider.fetch(URL_TEST_DATA_PROVIDER1)
-    assert data.iloc[0, 0] == "The Fall"
-    assert data.iloc[1, 0] == "Eternal Sunshine of the Spotless Mind"
-    assert data.iloc[2, 0] == "There Will Be Blood"
+def test_critic_agg_fetch_titles(test_provider, test_paths):
+    domestic, financials, international = test_provider.fetch(test_paths)
+    assert domestic.iloc[0, 0] == "The Fall"
+    assert financials.iloc[1, 0] == "Eternal Sunshine of the Spotless Mind"
+    assert international.iloc[2, 0] == "There Will Be Blood"
 
 
 def test_critic_agg_fetch_missing_file(test_provider, test_paths):
