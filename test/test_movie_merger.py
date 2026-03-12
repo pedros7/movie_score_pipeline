@@ -8,12 +8,13 @@ def critic_agg_movie():
     return MovieScore(
         title="The Fall",
         year=2006,
-        critic_score_percentage=100,
-        top_critic_score=9.0,
-        total_critic_reviews_counted=34,
+        critic_score_percentage=63,
+        top_critic_score=6.2,
+        total_critic_reviews_counted=60,
     )
 
 
+@pytest.fixture
 def audience_pulse_movie():
     return MovieScore(
         title="The Fall",
@@ -24,12 +25,13 @@ def audience_pulse_movie():
     )
 
 
+@pytest.fixture
 def box_office_metrics_movie():
     return MovieScore(
         title="The Fall",
         year=2006,
-        domestic_box_office_gross=0,
-        international_box_office_gross=90,
-        production_budget_usd=10,
-        marketing_spend_usd=10,
+        domestic_box_office_gross=2200000,
+        international_box_office_gross=3700000,
+        production_budget_usd=4000000,
+        marketing_spend_usd=2000000,
     )
