@@ -21,7 +21,7 @@ class BoxOfficeMetricsProvider(BaseProvider):
         try:
             domestic = pd.read_csv(paths["domestic"])
             financials = pd.read_csv(paths["financials"])
-            international = pd.read_csv(paths["financials"])
+            international = pd.read_csv(paths["international"])
         except ParserError as e:
             logging.error(f"CSV parsing error: {e}")
             raise
