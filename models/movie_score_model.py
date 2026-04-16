@@ -1,10 +1,11 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+import datetime as dt
 
 
 class MovieScore(BaseModel):
     title: str = Field(...)
-    year: int = Field(..., ge=1800, le=2028)
+    year: int = Field(..., ge=1800, le=(dt.datetime.today() + dt.timedelta(days=365)).year )
 
     critic_score_percentage: Optional[float] = Field(default=None, ge=0, le=100)
     top_critic_score: Optional[float] = Field(default=None, ge=0, le=10)
